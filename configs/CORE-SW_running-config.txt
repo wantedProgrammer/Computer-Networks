@@ -1,0 +1,207 @@
+!
+version 12.2(37)SE1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+service password-encryption
+!
+hostname CORE-SW
+!
+!
+no profinet
+enable secret 5 $1$mERr$RoJ/tuqkrL3xp9m7MUJZ2/
+!
+!
+ip dhcp excluded-address 192.168.52.1 192.168.52.9
+ip dhcp excluded-address 192.168.52.33 192.168.52.37
+ip dhcp excluded-address 192.168.52.65 192.168.52.69
+ip dhcp excluded-address 192.168.52.113 192.168.52.115
+!
+ip dhcp pool ADMIN
+ network 192.168.52.0 255.255.255.224
+ default-router 192.168.52.1
+ dns-server 198.51.100.10
+ip dhcp pool STUDIO
+ network 192.168.52.32 255.255.255.224
+ default-router 192.168.52.33
+ dns-server 198.51.100.10
+ip dhcp pool PRODUCTION
+ network 192.168.52.64 255.255.255.224
+ default-router 192.168.52.65
+ dns-server 198.51.100.10
+ip dhcp pool GUEST
+ network 192.168.52.112 255.255.255.240
+ default-router 192.168.52.113
+ dns-server 198.51.100.10
+!
+!
+ip routing
+!
+!
+!
+!
+username netadmin privilege 15 secret 5 $1$mERr$FZB/Grv5viyPMU1WXJ9Qw1
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip ssh version 2
+ip ssh time-out 60
+no ip domain-lookup
+ip domain-name platinumsound.local
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/1
+ switchport trunk allowed vlan 10
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/2
+ switchport trunk allowed vlan 10,20
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/3
+ switchport trunk allowed vlan 10,30
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/4
+!
+interface FastEthernet0/5
+!
+interface FastEthernet0/6
+!
+interface FastEthernet0/7
+!
+interface FastEthernet0/8
+!
+interface FastEthernet0/9
+!
+interface FastEthernet0/10
+ switchport access vlan 40
+ switchport mode access
+ spanning-tree portfast
+!
+interface FastEthernet0/11
+!
+interface FastEthernet0/12
+!
+interface FastEthernet0/13
+!
+interface FastEthernet0/14
+!
+interface FastEthernet0/15
+!
+interface FastEthernet0/16
+!
+interface FastEthernet0/17
+!
+interface FastEthernet0/18
+!
+interface FastEthernet0/19
+!
+interface FastEthernet0/20
+ switchport access vlan 50
+ switchport mode access
+ spanning-tree portfast
+!
+interface FastEthernet0/21
+!
+interface FastEthernet0/22
+!
+interface FastEthernet0/23
+!
+interface FastEthernet0/24
+!
+interface GigabitEthernet0/1
+ no switchport
+ ip address 192.168.52.130 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan10
+ mac-address 00d0.d31c.3801
+ ip address 192.168.52.1 255.255.255.224
+!
+interface Vlan20
+ mac-address 00d0.d31c.3802
+ ip address 192.168.52.33 255.255.255.224
+!
+interface Vlan30
+ mac-address 00d0.d31c.3803
+ ip address 192.168.52.65 255.255.255.224
+!
+interface Vlan40
+ mac-address 00d0.d31c.3804
+ ip address 192.168.52.97 255.255.255.240
+!
+interface Vlan50
+ mac-address 00d0.d31c.3805
+ ip address 192.168.52.113 255.255.255.240
+ ip access-group GUEST-IN in
+!
+ip classless
+ip route 0.0.0.0 0.0.0.0 192.168.52.129 
+!
+ip flow-export version 9
+!
+!
+ip access-list extended GUEST-IN
+ remark CR-14 contractor wireless - internet only
+ permit udp any eq bootpc any eq bootps
+ deny ip 192.168.52.112 0.0.0.15 192.168.52.0 0.0.0.255
+ permit udp 192.168.52.112 0.0.0.15 any eq domain
+ permit tcp 192.168.52.112 0.0.0.15 any eq www
+ permit tcp 192.168.52.112 0.0.0.15 any eq 443
+ permit icmp 192.168.52.112 0.0.0.15 any echo
+ deny ip any any
+access-list 10 remark SSH allowed from VLAN 10 only
+access-list 10 permit 192.168.52.0 0.0.0.31
+!
+banner motd # Authorised access only - Platinum Sound Studio #
+!
+!
+!
+!
+!
+line con 0
+ exec-timeout 5 0
+ login local
+!
+line aux 0
+!
+line vty 0 4
+ access-class 10 in
+ exec-timeout 5 0
+ login local
+ transport input ssh
+line vty 5 15
+ access-class 10 in
+ exec-timeout 5 0
+ login local
+ transport input ssh
+!
+!
+!
+!
+end
+
